@@ -1,0 +1,52 @@
+<!DOCTYPE>
+<head> 
+<meta http-equiv="Content-Type" content="text/html;" /> 
+</head>
+<body style="overflow: hidden;">
+  <script src="../../output/lib/basic.js"></script>
+  <script src="../../output/matrix/matrix.js"></script>
+  <script src="../../output/regression/logisitic.js"></script>
+
+
+  <script>
+  	var n = new matrix([1,0]);
+  	var m = new matrix([[1, -5],[-5,1]]);
+
+  	console.log(m.getElementByColumn(1));
+  	var distance = function(m){
+        let matrix = m.matrix;
+        let rows = 0;
+        let cols = m.cols;
+        let sum = 0;
+
+        for(let j = 0;j < cols;j++){
+            sum += matrix[0][j] * matrix[0][j];
+        }
+
+        return Math.sqrt(sum);  
+    };
+
+  	n = m.mutiply(n.transpose());
+  	d = 1/distance(n.transpose());
+
+  	n.scalarMutiply(d);
+  	console.log(n);
+	console.log('----------');
+
+  	for(let i = 0;i < 20;i++){
+  		n = m.mutiply(n);
+  		d = 1/distance(n.transpose());
+  		n.scalarMutiply(d);
+
+  		console.log(n);
+  	}
+
+
+
+  	
+
+
+
+  </script>
+</body> 
+</html>

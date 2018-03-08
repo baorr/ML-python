@@ -1,0 +1,347 @@
+<script>
+
+const delta = 1e-10;
+const abs = Math.abs;
+
+let genArray = (rows, cols, e = delta) => {
+	let mar = [];
+
+	for(let i = 0;i < rows;i++){
+		mar[i] = mar[i] ? mar[i] : [];
+		for(let j = 0;j < cols;j++){
+			mar[i][j] = e;
+		}
+	}
+
+	return new Matrix(mar);
+};
+
+let initValue = (A) => {
+	if(!(A instanceof Array)) throw('A is not Array');
+
+	if(!(A[0] instanceof Array)){
+		A = [A];
+	}
+	return A;
+}
+
+class Matrix {
+
+	constructor(A) {
+		this.matrix = initValue(A);
+        this.rows = this.matrix.length;
+        this.cols = this.matrix[0].length;
+    }
+
+    getSize(){
+    	return {
+			rows: this.rows,
+			cols: this.cols
+		};
+    }
+
+    splitMatrix(){
+    	let matrix = this.matrix;
+    	let rows = this.rows;
+    	let cols = this.cols;
+
+    	let res = {
+    		L: [],
+    		D: [],
+    		U: []
+    	};
+
+    	for(let i = 0;i < rows;i++){
+    		res.L[i] = res.L[i] ? res.L[i] : [];
+    		res.U[i] = res.U[i] ? res.U[i] : [];
+    		res.D[i] = res.D[i] ? res.D[i] : [];
+    		for(let j = 0;j < cols;j++){
+    			let a = matrix[i][j];
+    			if(i > j){
+    				res.L[i][j] = 0 - a;
+    				res.D[i][j] = 0;
+    				res.U[i][j] = 0;
+    			}else if(i == j){
+    				res.L[i][j] = 0;
+    				res.D[i][j] = 1/a;
+    				res.U[i][j] = 0;
+    			}else if(i < j){
+    				res.L[i][j] = 0;
+    				res.D[i][j] = 0;
+    				res.U[i][j] = 0 - a;
+    			}
+    		}
+    	}
+
+    	return {
+    		L: new Matrix(res.L),
+    		D: new Matrix(res.D),
+    		U: new Matrix(res.U)
+    	};
+    }
+
+    add(m){
+    	let matrix = this.matrix;
+    	let rows = this.rows;
+    	let cols = this.cols;
+
+    	let addtionMatrix = m.matrix;
+    	let mar = [];
+
+    	for(let i = 0;i < rows;i++){
+    		mar[i] = mar[i] ? mar[i] : [];
+    		for(let j = 0;j < cols;j++){
+    			mar[i][j] = (addtionMatrix[i][j] + matrix[i][j]);
+    		}
+    	}
+
+    	let res = new Matrix(mar);
+    	return res;
+    }
+
+    substract(m){
+    	let matrix = this.matrix;
+    	let rows = this.rows;
+    	let cols = this.cols;
+
+    	let addtionMatrix = m.matrix;
+    	let mar = [];
+
+    	for(let i = 0;i < rows;i++){
+    		mar[i] = mar[i] ? mar[i] : [];
+    		for(let j = 0;j < cols;j++){
+    			mar[i][j] = (addtionMatrix[i][j] - matrix[i][j]);
+    		}
+    	}
+
+    	let res = new Matrix(mar);
+    	return res;
+    }
+
+    mutiply(m){
+    	let matrix = this.matrix;
+    	let rows = this.rows;
+    	
+
+    	let mutiplyMatrix = m.matrix;
+
+    	let cols = mutiplyMatrix[0].length;
+
+    	let mar = [];
+
+    	for(let i = 0;i < rows;i++){
+    		mar[i] = mar[i] ? mar[i] : [];
+			for(let j = 0;j < cols;j++){
+				mar[i][j] = 0;
+				for(let k = 0;k < rows;k++){
+					mar[i][j] += matrix[i][k] * mutiplyMatrix[k][j];
+				}
+			}
+    	}
+
+    	let res = new Matrix(mar);
+    	return res;
+    }
+
+    solveMarixEquation(b, initX){
+    	let res = this.splitMatrix();
+
+    	let tempX = initX;
+
+    	let fixParts = res.L.add(res.U);
+    	let cons = res.D.mutiply(b);
+    	let N = 1;
+
+    	fixParts = res.D.mutiply(fixParts);
+    	initX = fixParts.mutiply(initX).add(cons);
+
+    	while(!tempX.compare(initX)){
+    		tempX = initX;
+    		console.log(`${N++}`);
+    		console.log(`${JSON.stringify(initX)}`);
+    		console.log(`======================`);
+    		initX = fixParts.mutiply(initX).add(cons);
+    	}
+
+    	return tempX;
+    }
+
+    compare(m, e = delta){
+    	let rows = this.rows;
+    	let cols = this.cols;
+
+    	let matrix = this.matrix;
+    	let compareMatrix = m.matrix;
+
+    	for(let i = 0;i < cols;i++){
+			for(let j = 0;j < rows;j++){
+				if(abs(matrix[i][j] - compareMatrix[i][j]) > e){
+					return false;
+				}
+			}
+    	}
+
+    	return true;
+    }
+
+    transpose(){
+    	let matrix = this.matrix;
+    	let rows = this.rows;
+    	let cols = this.cols;
+
+    	let mar = [];
+
+    	for(let i = 0;i < cols;i++){
+    		mar[i] = mar[i] ? mar[i] : [];
+			for(let j = 0;j < rows;j++){
+				mar[i][j] = matrix[j][i];
+			}
+    	}
+
+    	let res = new Matrix(mar);
+    	return res;
+    }
+};
+
+
+	
+const Exp = Math.exp;
+const pow = Math.pow;
+//const abs = Math.abs;
+const ln = Math.log;
+//const delta = 0.0000000001;
+if(!Array.prototype.sum){
+	Array.prototype.sum = () => {
+		let N = this.length;
+		let sum = 0;
+		
+		for(let i = 0;i < N;i++){
+			sum += this[i];
+		}
+
+		return sum/N;
+	}
+}
+
+const x = [20,23,24,25,25,26,26,28,28,29,30,30,30,30,30,30,32,32,33,33,34,34,34,34,34,35,35,36,36,36,37,37,37,38,38,39,39,40,40,41,41,42,42,42,42,43,43,43,44,44,44,44,45,45,46,46,47,47,47,48,48,48,49,49,49,50,50,51,52,52,53,53,54,55,55,55,56,56,56,57,57,57,57,57,57,58,58,58,59,59,60,60,61,62,62,63,64,64,65,69];
+const y = [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,1,0,0,1,1,0,1,0,1,0,0,1,0,1,1,0,0,1,0,1,0,0,1,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,1];
+
+const N = y.length;
+
+let belta = [0, 0];
+
+let base = (x) => {
+	let y = belta[0] + belta[1] * x;
+	let res = Exp(y);
+	console.log(`=========${belta[0]} + ${belta[1]} * ${x} = ${y}=========`);
+	console.log(`=========e^${y} = ${res}=========`);
+	return res;
+};
+
+let piFuc = (x) => {
+	let b = base(x);
+	let res = b / (1 + b);
+	console.log(`=========${b} / (1 + ${b}) = ${res}=========`);
+	return res;
+};
+
+let diffFunc = (x) => {
+	let b = 1/base(x);
+	let downParts = pow((1 + b), 2);
+	let res = b / downParts;
+	console.log(`=========${b} / (1 + ${b})^2 = ${res}=========`);
+	return res;
+}
+
+let f = [
+	(x, y) => {
+		return (y - piFuc(x));
+	},
+	(x, y) => {
+		return x * (y - piFuc(x));
+	}
+];
+
+let F = [
+	[
+		(x) => {
+			return diffFunc(x);
+		},
+		(x) => {
+			return x * diffFunc(x);
+		}
+	],
+	[
+		(x) => {
+			return x * diffFunc(x);
+		},
+		(x) => {
+			return pow(x, 2) * diffFunc(x);
+		}
+	]
+];
+
+let A = () => {
+	let fs = [];
+	let Fs = [];
+	let l = belta.length;
+	for(let i =0;i < l;i++){
+		fs[i] = fs[i] ? fs[i] : [];
+		fs[i][0] = 0;
+		Fs[i] = Fs[i] ? Fs[i] : [];
+		Fs[i][0] = 0;
+		Fs[i][1] = 0;
+		for(let j =0;j < N;j++){
+			fs[i][0] += f[i](x[j], y[j]);
+
+			Fs[i][0] += F[i][0](x[j]);
+			Fs[i][1] += F[i][1](x[j]);
+		}
+	}
+	return {
+		fs: fs,
+		Fs: Fs
+	};
+};
+
+
+
+let loopRes = () => {
+
+	let a = A();
+
+	let am = new Matrix(a.Fs);
+	let bm = new Matrix(a.fs);
+	let ix = new Matrix([[0], [0]]);
+
+	let temp = am.solveMarixEquation(bm, ix);
+	let tt = temp.transpose().matrix;
+
+	let d0 = belta[0] - tt[0][0];
+	let d1 = belta[1] - tt[0][1];
+
+	/*while(abs(d0) > delta && abs(d1) > delta){
+		belta[0] = d0;
+		belta[1] = d1;
+
+		a = A();
+
+		am = new Matrix(a.Fs);
+		bm = new Matrix(a.fs);
+		ix = new Matrix([[0], [0]]);
+
+		temp = am.solveMarixEquation(bm, ix);
+		tt = temp.transpose().matrix;
+
+		d0 = belta[0] - tt[0][0];
+		d1 = belta[1] - tt[0][1];
+
+		console.log(tt);
+
+	}*/
+
+}
+
+loopRes();
+
+</script>

@@ -1,0 +1,105 @@
+<!DOCTYPE>
+<head> 
+<meta http-equiv="Content-Type" content="text/html;" /> 
+</head>
+<body style="overflow: hidden;">
+  <script src="../../output/lib/basic.js"></script>
+  <script src="../../output/vector/vector.js"></script>
+
+
+  <script>
+
+    var w1 = new vector([1,1,-1]);
+    var w2 = new vector([1,0,2]);
+    var w3 = new vector([2,-2,3]);
+
+    var w = [w1, w2, w3];
+    var gramSchmidtProcess = function(w){
+
+        let u = [];
+        let lens = w.length;
+
+        u[0] = w[0].unitilize();
+
+        for(let i = 1;i < lens;i++){
+            let t = w[i];
+            let v = Object.create(t);
+            let ww = t.innerProduct(t);
+            for(let j = 0;j < i;j++){
+                let temp = t.innerProduct(u[j]);
+                ww -= temp * temp;
+                v = v.substract(u[j].scalarMutiply(temp));
+            }
+
+            ww = 1/Math.sqrt(ww);
+
+            u[i] = v.scalarMutiply(ww);
+        }
+
+        return u;
+    };
+
+    var gramSchmidtProcessStable = function(w){
+        let u = [];
+        let ws = [w];
+        let rs = [];
+        let lens = w.length;
+
+        u[0] = w[0].unitilize();
+
+        for(let i = 1;i < lens;i++){
+            if(!ws[i]) ws[i] = [];
+            let flag = i - 1;
+            for(let j = i;j < lens;j++){
+              let t = ws[flag][j];
+              let v = Object.create(t);
+              let ww = v.innerProduct(u[flag]);
+              ws[i][j] = t.substract(u[flag].scalarMutiply(ww));
+              if(j == i){
+                  u[i] = ws[i][j].unitilize();
+              }
+            }
+        }
+
+        for(let i = 0;i < lens;i++){
+            if(!rs[i]) rs[i] = [];
+            let tu = 0;
+            for(let j = 0;j < lens;j++){
+                tu = 0;
+                if(i <= j){
+                    tu = w[j].innerProduct(u[i]);
+                    if(i == j){
+                        tu /= u[j].innerProduct(u[j]);
+                    }
+                }
+                rs[i][j] = tu;
+            }
+        }
+        return [u, ws, rs];
+    };
+
+    var u = gramSchmidtProcess(w);
+    console.log(u);
+
+    w = [new vector([2,2]), new vector([1,3])];
+    u = gramSchmidtProcess(w);
+    console.log(u);
+
+    w = [new vector([2,2, -1]), new vector([0, 4, -1]), new vector([1, 2, -3])];
+    u = gramSchmidtProcess(w);
+    console.log(u);
+
+    u = gramSchmidtProcessStable(w);
+    console.log(u);
+
+    w = [new vector([2,1, 0]), new vector([1, 0, 2]), new vector([2, -2, 3])];
+    u = gramSchmidtProcess(w);
+    console.log(u);
+
+    w = [new vector([2, 1, 0]), new vector([1, 3, -1]), new vector([0, -1, 6])];
+    u = gramSchmidtProcessStable(w);
+    console.log(u);
+
+  </script>
+</body> 
+</html>

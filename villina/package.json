@@ -1,0 +1,33 @@
+{
+  "name": "mathkitdo",
+  "version": "1.0.0",
+  "description": "mathe illusion",
+  "main": "npm run test.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "babel-node app.js",
+    "output": "babel core -d output",
+    "babel": "babel-node regression/logisitic.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "none"
+  },
+  "keywords": [
+    "mathe",
+    "isllusion"
+  ],
+  "author": "baobao",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-transform-es2015-modules-umd": "^6.24.1",
+    "babel-preset-env": "^1.6.1"
+  },
+  "dependencies": {
+    "line-by-line": "^0.1.6"
+  }
+}
